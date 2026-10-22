@@ -133,13 +133,23 @@
         <div class="section">
             <h2>ANALISIS & SARAN PEMBINAAN</h2>
 
-            @foreach ($instrumentNames as $id => $name)
-                @php $saran = $savedAnalysis->getSaranForInstrument($id); @endphp
-                @if ($saran)
-                    <h3>{{ $name }}</h3>
-                    <p>{{ $saran }}</p>
-                @endif
-            @endforeach
+            @if ($savedAnalysis->hasSaranAspek())
+                @foreach ($aspekItems as $item)
+                    @php $saran = $savedAnalysis->getSaranForAspek($item['id']); @endphp
+                    @if ($saran)
+                        <h3>{{ $item['letter'] }}. {{ $item['label'] }} (Nilai: {{ number_format($item['score'], 0) }} — {{ $item['score'] >= $thresholdBaik ? 'BAIK' : 'KURANG' }})</h3>
+                        <p>{{ $saran }}</p>
+                    @endif
+                @endforeach
+            @else
+                @foreach ($instrumentNames as $id => $name)
+                    @php $saran = $savedAnalysis->getSaranForInstrument($id); @endphp
+                    @if ($saran)
+                        <h3>{{ $name }}</h3>
+                        <p>{{ $saran }}</p>
+                    @endif
+                @endforeach
+            @endif
 
             @if ($savedAnalysis->kesimpulan_akhir)
                 <h3>Kesimpulan Akhir</h3>

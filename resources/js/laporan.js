@@ -2,7 +2,7 @@ const page = window.laporanPage;
 const threshold = page?.threshold ?? 70;
 
 function generateSaran(item) {
-    const nama = `Instrumen ${item.id} (${item.label})`;
+    const nama = `Aspek ${item.letter}. ${item.label}`;
 
     if (!item.observed) {
         return `${nama} belum diobservasi. Lakukan observasi terlebih dahulu agar capaian dan saran pembinaan dapat dianalisis.`;
@@ -12,7 +12,7 @@ function generateSaran(item) {
         return `Capaian ${nama} berada pada kategori BAIK dengan skor ${Math.round(item.score)}. Pertahankan praktik baik yang sudah dilakukan dan dokumentasikan sebagai model pembelajaran bagi rekan sejawat.`;
     }
 
-    return `Capaian ${nama} masih KURANG dengan skor ${Math.round(item.score)}. Disarankan pelaksanaan pendampingan intensif, refleksi bersama supervisor, serta perbaikan berkelanjutan sesuai indikator instrumen supervisi.`;
+    return `Capaian ${nama} masih KURANG dengan skor ${Math.round(item.score)}. Disarankan pelaksanaan pendampingan intensif, refleksi bersama supervisor, serta perbaikan berkelanjutan sesuai indikator pada aspek ini.`;
 }
 
 function generateKesimpulan(scores, guruName) {
@@ -34,8 +34,8 @@ function generateKesimpulan(scores, guruName) {
 document.getElementById('btn-auto-analisis')?.addEventListener('click', () => {
     const scores = page?.scores ?? [];
 
-    (page?.saranItems ?? []).forEach((item) => {
-        const field = document.getElementById(`saran_instrumen_${item.id}`);
+    (page?.aspekItems ?? []).forEach((item) => {
+        const field = document.getElementById(`saran_aspek_${item.id}`);
         if (field) {
             field.value = generateSaran(item);
         }
