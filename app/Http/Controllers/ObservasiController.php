@@ -30,7 +30,8 @@ class ObservasiController extends Controller
         $selectedInstrumentId = (int) $request->query('instrument_id', 0);
 
         $selectedGuru = $gurus->firstWhere('id', $selectedGuruId);
-        $selectedInstrument = $instruments->firstWhere('id', $selectedInstrumentId);
+        $selectedInstrument = $instruments->firstWhere('id', $selectedInstrumentId) ?? $instruments->first();
+        $selectedInstrumentId = $selectedInstrument?->id ?? 0;
         $sheetOpen = $selectedGuru && $selectedInstrument && $request->boolean('buka');
 
         $existingRatings = [];
