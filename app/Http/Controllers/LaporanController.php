@@ -49,9 +49,11 @@ class LaporanController extends Controller
             : null;
 
         // Get all instruments that have ratings (observed instruments)
-        $ratings = \App\Models\ObservationRating::query()
-            ->where('guru_id', $selectedGuru->id)
-            ->pluck('nilai', 'instrument_indikator_id');
+        $ratings = $selectedGuru
+            ? \App\Models\ObservationRating::query()
+                ->where('guru_id', $selectedGuru->id)
+                ->pluck('nilai', 'instrument_indikator_id')
+            : collect();
 
         $observedInstrumentIds = [];
         foreach ($instruments as $instrument) {

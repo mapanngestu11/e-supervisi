@@ -34,7 +34,7 @@
         </div>
 
         @if ($selectedGuru)
-            @if ($instrumentNames->isEmpty())
+            @if (empty($instrumentNames))
                 <div class="rounded-xl border border-dashed border-slate-300 bg-white p-12 text-center text-slate-500">
                     <i class="fa-solid fa-clipboard-list text-4xl mb-4 text-slate-300"></i>
                     <p class="text-lg font-medium">Guru ini belum memiliki data observasi</p>
