@@ -179,6 +179,7 @@
             window.laporanPage = {
                 scores: @json($chartScores),
                 labels: @json(array_values($instrumentNames)),
+                ids: @json(array_keys($instrumentNames)),
                 threshold: {{ $thresholdBaik }},
                 guruName: @json($selectedGuru?->nama_lengkap ?? ''),
                 saranItems: @json($saranItems ?? []),

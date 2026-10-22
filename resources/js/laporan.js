@@ -52,7 +52,7 @@ if (canvas && page?.scores?.length && typeof Chart !== 'undefined') {
     new Chart(canvas, {
         type: 'bar',
         data: {
-            labels: page.labels.map((_, i) => `INS ${i + 1}`),
+            labels: page.labels.map((_, i) => `INS ${page.ids?.[i] ?? i + 1}`),
             datasets: [{
                 label: 'Skor Capaian',
                 data: page.scores,
