@@ -25,12 +25,6 @@
                     <p class="text-[11px] font-medium uppercase tracking-[0.2em] text-slate-300">Kinerja Profesional</p>
                 </div>
             </div>
-            <div id="session-timer"
-                class="hidden items-center gap-2 rounded-md bg-[#fbbf24] px-4 py-2 text-sm font-semibold text-gray-800 shadow-sm cursor-pointer transition hover:bg-[#f59e0b]"
-                onclick="resetSession()" title="Klik untuk reset timer">
-                <i class="fa-solid fa-clock text-xs"></i>
-                <span id="timer-display">15:00</span>
-            </div>
         </div>
     </header>
 
@@ -42,11 +36,6 @@
         </main>
     </div>
     @stack('scripts')
-    <script>
-        @if (!session('is_locked'))
-            @include('partials.session-lock-script')
-        @endif
-    </script>
 </body>
 
 </html>

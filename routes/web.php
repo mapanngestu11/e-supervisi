@@ -45,6 +45,3 @@ Route::post('/reset-sesi', function () {
 
     return redirect()->route('dashboard')->with('status', 'Sesi telah direset.');
 })->name('session.reset');
-
-Route::get('/verify-pin', [PinController::class, 'show'])->name('pin.verify');
-Route::post('/verify-pin', [PinController::class, 'verify'])->name('pin.verify.post');

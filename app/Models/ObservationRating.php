@@ -14,9 +14,18 @@ class ObservationRating extends Model
         'nilai',
     ];
 
+    protected static function booted(): void
+    {
+        static::saving(function (self $model) {
+            if ($model->guru_id && ! $model->guru_uuid) {
+                $model->guru_uuid = Guru::query()->whereKey($model->guru_id)->value('uuid');
+            }
+        });
+    }
+
     public function guru(): BelongsTo
     {
-        return $this->belongsTo(Guru::class, 'guru_uuid');
+        return $this->belongsTo(Guru::class, 'guru_id');
     }
 
     public function indikator(): BelongsTo

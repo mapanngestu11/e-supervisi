@@ -66,7 +66,7 @@ function setFormEdit(guru) {
     if (!form || !formMethod || !modalTitle) return;
 
     modalTitle.textContent = 'Ubah Data Pendidik';
-    form.action = `${storeUrl}/${guru.id}`;
+    form.action = `${storeUrl}/${guru.uuid}`;
     formMethod.value = 'PUT';
     formMethod.disabled = false;
 
