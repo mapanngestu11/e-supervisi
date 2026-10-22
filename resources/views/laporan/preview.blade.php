@@ -84,15 +84,27 @@
                     <h2 class="text-xl font-bold text-gray-800 mb-4 border-b-2 border-gray-800 pb-2">ANALISIS & SARAN
                         PEMBINAAN</h2>
 
-                    @foreach ($instrumentNames as $id => $name)
-                        @php $saran = $savedAnalysis->getSaranForInstrument($id); @endphp
-                        @if ($saran)
-                            <div class="mb-4">
-                                <h3 class="text-lg font-semibold text-gray-700 mb-2">{{ $name }}</h3>
-                                <p class="text-gray-600">{{ $saran }}</p>
-                            </div>
-                        @endif
-                    @endforeach
+                    @if ($savedAnalysis->hasSaranAspek())
+                        @foreach ($aspekItems as $item)
+                            @php $saran = $savedAnalysis->getSaranForAspek($item['id']); @endphp
+                            @if ($saran)
+                                <div class="mb-4">
+                                    <h3 class="text-lg font-semibold text-gray-700 mb-2">{{ $item['letter'] }}. {{ $item['label'] }} (Nilai: {{ number_format($item['score'], 0) }} — {{ $item['score'] >= $thresholdBaik ? 'BAIK' : 'KURANG' }})</h3>
+                                    <p class="text-gray-600">{{ $saran }}</p>
+                                </div>
+                            @endif
+                        @endforeach
+                    @else
+                        @foreach ($instrumentNames as $id => $name)
+                            @php $saran = $savedAnalysis->getSaranForInstrument($id); @endphp
+                            @if ($saran)
+                                <div class="mb-4">
+                                    <h3 class="text-lg font-semibold text-gray-700 mb-2">{{ $name }}</h3>
+                                    <p class="text-gray-600">{{ $saran }}</p>
+                                </div>
+                            @endif
+                        @endforeach
+                    @endif
 
                     @if ($savedAnalysis->kesimpulan_akhir)
                         <div class="mb-4">

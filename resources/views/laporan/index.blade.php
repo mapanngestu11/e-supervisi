@@ -105,37 +105,48 @@
                             </button>
                         </div>
 
-                        @foreach ($saranItems as $item)
-                            @php
-                                $id = $item['id'];
-                                $baik = $item['score'] >= $thresholdBaik;
-                            @endphp
-                            <div class="mb-4">
-                                <div class="mb-1.5 flex items-center justify-between gap-3">
-                                    <label for="saran_instrumen_{{ $id }}"
-                                        class="block text-[11px] font-semibold uppercase tracking-wide text-slate-400">
-                                        INS-{{ $id }} — {{ $item['label'] }}
-                                    </label>
-                                    <div class="flex shrink-0 items-center gap-2">
-                                        @if ($item['observed'])
-                                            <span class="text-sm font-bold text-slate-800">Nilai:
-                                                {{ number_format($item['score'], 0) }}</span>
-                                            <span @class([
-                                                'rounded-md px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide',
-                                                'bg-blue-100 text-blue-700' => $baik,
-                                                'bg-red-100 text-red-700' => !$baik,
-                                            ])>{{ $baik ? 'Baik' : 'Kurang' }}</span>
-                                        @else
-                                            <span
-                                                class="rounded-md bg-slate-100 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-slate-500">Belum
-                                                diobservasi</span>
-                                        @endif
+                        @forelse (collect($aspekItems)->groupBy('instrument_id') as $insAspeks)
+                            @if (count($saranItems) > 1)
+                                <p class="mb-2 mt-2 text-xs font-bold uppercase tracking-wide text-[#1e3a5f]">
+                                    INS-{{ $insAspeks->first()['instrument_id'] }} —
+                                    {{ $insAspeks->first()['instrument_label'] }}
+                                </p>
+                            @endif
+                            @foreach ($insAspeks as $item)
+                                @php
+                                    $id = $item['id'];
+                                    $baik = $item['score'] >= $thresholdBaik;
+                                @endphp
+                                <div class="mb-4">
+                                    <div class="mb-1.5 flex items-center justify-between gap-3">
+                                        <label for="saran_aspek_{{ $id }}"
+                                            class="block text-[11px] font-semibold uppercase tracking-wide text-slate-400">
+                                            {{ $item['letter'] }}. {{ $item['label'] }}
+                                        </label>
+                                        <div class="flex shrink-0 items-center gap-2">
+                                            @if ($item['observed'])
+                                                <span class="text-sm font-bold text-slate-800">Nilai:
+                                                    {{ number_format($item['score'], 0) }}</span>
+                                                <span @class([
+                                                    'rounded-md px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide',
+                                                    'bg-blue-100 text-blue-700' => $baik,
+                                                    'bg-red-100 text-red-700' => !$baik,
+                                                ])>{{ $baik ? 'Baik' : 'Kurang' }}</span>
+                                            @else
+                                                <span
+                                                    class="rounded-md bg-slate-100 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-slate-500">Belum
+                                                    diobservasi</span>
+                                            @endif
+                                        </div>
                                     </div>
+                                    <textarea name="saran_aspek[{{ $id }}]" id="saran_aspek_{{ $id }}" rows="3"
+                                        class="w-full rounded-lg border border-slate-200 px-3 py-2.5 text-sm outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-100">{{ old('saran_aspek.' . $id, $savedAnalysis?->getSaranForAspek($id) ?? '') }}</textarea>
                                 </div>
-                                <textarea name="saran_instrumen_{{ $id }}" id="saran_instrumen_{{ $id }}" rows="3"
-                                    class="w-full rounded-lg border border-slate-200 px-3 py-2.5 text-sm outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-100">{{ old('saran_instrumen_' . $id, $savedAnalysis ? $savedAnalysis->getSaranForInstrument($id) : '') }}</textarea>
-                            </div>
-                        @endforeach
+                            @endforeach
+                        @empty
+                            <p class="mb-4 text-sm text-slate-500">Belum ada aspek pada instrumen. Tambahkan aspek di menu
+                                Instrumen.</p>
+                        @endforelse
 
                         <div>
                             <label for="kesimpulan_akhir"
@@ -182,7 +193,7 @@
                 ids: @json(array_keys($instrumentNames)),
                 threshold: {{ $thresholdBaik }},
                 guruName: @json($selectedGuru?->nama_lengkap ?? ''),
-                saranItems: @json($saranItems ?? []),
+                aspekItems: @json($aspekItems ?? []),
             };
         </script>
         @vite('resources/js/laporan.js')

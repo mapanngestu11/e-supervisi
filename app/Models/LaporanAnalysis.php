@@ -12,6 +12,7 @@ class LaporanAnalysis extends Model
         'guru_uuid',
         'scores',
         'saran_instrumen',
+        'saran_aspek',
         'saran_instrumen_1',
         'saran_instrumen_2',
         'saran_instrumen_3',
@@ -24,6 +25,7 @@ class LaporanAnalysis extends Model
         return [
             'scores' => 'array',
             'saran_instrumen' => 'array',
+            'saran_aspek' => 'array',
         ];
     }
 
@@ -36,6 +38,16 @@ class LaporanAnalysis extends Model
 
         // Fallback to legacy columns
         return $this->{'saran_instrumen_' . $instrumentId} ?? null;
+    }
+
+    public function getSaranForAspek($aspekId): ?string
+    {
+        return $this->saran_aspek[$aspekId] ?? null;
+    }
+
+    public function hasSaranAspek(): bool
+    {
+        return collect($this->saran_aspek ?? [])->filter(fn ($v) => is_string($v) && trim($v) !== '')->isNotEmpty();
     }
 
     protected static function booted(): void

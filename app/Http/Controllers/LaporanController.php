@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Guru;
 use App\Models\Instrument;
+use App\Models\InstrumentAspek;
 use App\Models\LaporanAnalysis;
 use App\Services\ObservationScoreCalculator;
 use Database\Seeders\InstrumentSeeder;
@@ -91,6 +92,10 @@ class LaporanController extends Controller
             ];
         }
 
+        $aspekItems = $selectedGuru
+            ? $this->aspekItems($selectedGuru, $instruments, $calculator)
+            : [];
+
         return view('laporan.index', [
             'activeMenu' => 'laporan',
             'gurus' => $gurus,
@@ -102,6 +107,7 @@ class LaporanController extends Controller
             'savedAnalysis' => $saved,
             'chartScores' => $chartScores,
             'saranItems' => $saranItems,
+            'aspekItems' => $aspekItems,
         ]);
     }
 
@@ -110,19 +116,16 @@ class LaporanController extends Controller
         $data = $request->validate([
             'guru_id' => ['required', 'exists:gurus,id'],
             'scores' => ['required', 'array'],
-            'saran_instrumen' => ['nullable', 'array'],
-            'saran_instrumen_1' => ['nullable', 'string'],
-            'saran_instrumen_2' => ['nullable', 'string'],
-            'saran_instrumen_3' => ['nullable', 'string'],
-            'saran_instrumen_4' => ['nullable', 'string'],
+            'saran_aspek' => ['nullable', 'array'],
+            'saran_aspek.*' => ['nullable', 'string'],
             'kesimpulan_akhir' => ['nullable', 'string'],
         ]);
 
-        $saranArray = [];
-        foreach (Instrument::query()->pluck('id') as $id) {
-            $value = $request->input('saran_instrumen_' . $id);
-            if (is_string($value) && trim($value) !== '') {
-                $saranArray[$id] = $value;
+        $validAspekIds = InstrumentAspek::query()->pluck('id')->all();
+        $saranAspek = [];
+        foreach ((array) $request->input('saran_aspek', []) as $id => $value) {
+            if (in_array((int) $id, $validAspekIds, true) && is_string($value) && trim($value) !== '') {
+                $saranAspek[(int) $id] = $value;
             }
         }
 
@@ -130,11 +133,7 @@ class LaporanController extends Controller
             ['guru_id' => $data['guru_id']],
             [
                 'scores' => $data['scores'],
-                'saran_instrumen' => $saranArray,
-                'saran_instrumen_1' => $data['saran_instrumen_1'] ?? null,
-                'saran_instrumen_2' => $data['saran_instrumen_2'] ?? null,
-                'saran_instrumen_3' => $data['saran_instrumen_3'] ?? null,
-                'saran_instrumen_4' => $data['saran_instrumen_4'] ?? null,
+                'saran_aspek' => $saranAspek,
                 'kesimpulan_akhir' => $data['kesimpulan_akhir'] ?? null,
             ],
         );
@@ -190,6 +189,7 @@ class LaporanController extends Controller
             'scores' => $filteredScores,
             'thresholdBaik' => 70,
             'savedAnalysis' => $saved,
+            'aspekItems' => $this->aspekItems($guru, $instruments, $calculator),
         ]);
     }
 
@@ -239,6 +239,7 @@ class LaporanController extends Controller
             'scores' => $filteredScores,
             'thresholdBaik' => 70,
             'savedAnalysis' => $saved,
+            'aspekItems' => $this->aspekItems($guru, $instruments, $calculator),
         ])->render();
 
         $filename = 'Laporan_Supervisi_' . str_replace(' ', '_', $guru->nama_lengkap) . '.doc';
@@ -294,6 +295,7 @@ class LaporanController extends Controller
             'scores' => $filteredScores,
             'thresholdBaik' => 70,
             'savedAnalysis' => $saved,
+            'aspekItems' => $this->aspekItems($guru, $instruments, $calculator),
         ])->render();
 
         $filename = 'Laporan_Supervisi_' . str_replace(' ', '_', $guru->nama_lengkap) . '.html';
@@ -301,6 +303,32 @@ class LaporanController extends Controller
         return response($html)
             ->header('Content-Type', 'text/html')
             ->header('Content-Disposition', 'attachment; filename="' . $filename . '"');
+    }
+
+    /**
+     * @return list<array{id: int, letter: string, label: string, instrument_id: int, instrument_label: string, score: float, observed: bool}>
+     */
+    private function aspekItems(Guru $guru, $instruments, ObservationScoreCalculator $calculator): array
+    {
+        $instruments->load(['aspeks.indikators']);
+        $aspekScores = $calculator->aspekScoresForGuru($guru->id, $instruments);
+
+        $items = [];
+        foreach ($instruments as $instrument) {
+            foreach ($instrument->aspeks->values() as $index => $aspek) {
+                $items[] = [
+                    'id' => $aspek->id,
+                    'letter' => chr(65 + $index),
+                    'label' => $aspek->judul,
+                    'instrument_id' => $instrument->id,
+                    'instrument_label' => $instrument->judul,
+                    'score' => (float) ($aspekScores[$aspek->id]['score'] ?? 0),
+                    'observed' => (bool) ($aspekScores[$aspek->id]['observed'] ?? false),
+                ];
+            }
+        }
+
+        return $items;
     }
 
     /**
