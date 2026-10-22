@@ -1,12 +1,18 @@
 const page = window.laporanPage;
 const threshold = page?.threshold ?? 70;
 
-function generateSaran(insNum, score, label) {
-    if (score >= threshold) {
-        return `Capaian Instrumen ${insNum} (${label}) berada pada kategori BAIK dengan skor ${Math.round(score)}. Pertahankan praktik baik yang sudah dilakukan dan dokumentasikan sebagai model pembelajaran bagi rekan sejawat.`;
+function generateSaran(item) {
+    const nama = `Instrumen ${item.id} (${item.label})`;
+
+    if (!item.observed) {
+        return `${nama} belum diobservasi. Lakukan observasi terlebih dahulu agar capaian dan saran pembinaan dapat dianalisis.`;
     }
 
-    return `Capaian Instrumen ${insNum} (${label}) masih KURANG dengan skor ${Math.round(score)}. Disarankan pelaksanaan pendampingan intensif, refleksi bersama supervisor, serta perbaikan berkelanjutan sesuai indikator instrumen supervisi.`;
+    if (item.score >= threshold) {
+        return `Capaian ${nama} berada pada kategori BAIK dengan skor ${Math.round(item.score)}. Pertahankan praktik baik yang sudah dilakukan dan dokumentasikan sebagai model pembelajaran bagi rekan sejawat.`;
+    }
+
+    return `Capaian ${nama} masih KURANG dengan skor ${Math.round(item.score)}. Disarankan pelaksanaan pendampingan intensif, refleksi bersama supervisor, serta perbaikan berkelanjutan sesuai indikator instrumen supervisi.`;
 }
 
 function generateKesimpulan(scores, guruName) {
@@ -27,13 +33,11 @@ function generateKesimpulan(scores, guruName) {
 
 document.getElementById('btn-auto-analisis')?.addEventListener('click', () => {
     const scores = page?.scores ?? [];
-    const labels = page?.labels ?? [];
 
-    scores.forEach((score, index) => {
-        const insNum = index + 1;
-        const field = document.getElementById(`saran_instrumen_${insNum}`);
+    (page?.saranItems ?? []).forEach((item) => {
+        const field = document.getElementById(`saran_instrumen_${item.id}`);
         if (field) {
-            field.value = generateSaran(insNum, score, labels[index] ?? `Instrumen ${insNum}`);
+            field.value = generateSaran(item);
         }
     });
 
