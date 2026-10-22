@@ -6,6 +6,7 @@ use App\Http\Controllers\InstitusiController;
 use App\Http\Controllers\InstrumenController;
 use App\Http\Controllers\LaporanController;
 use App\Http\Controllers\ObservasiController;
+use App\Http\Controllers\PinController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
