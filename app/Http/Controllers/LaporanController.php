@@ -81,6 +81,16 @@ class LaporanController extends Controller
             ? array_values(array_map(fn($n) => $filteredScores[$n] ?? 0, array_keys($filteredInstrumentNames)))
             : array_fill(0, count($filteredInstrumentNames), 0);
 
+        $saranItems = [];
+        foreach ($instrumentNames as $id => $name) {
+            $saranItems[] = [
+                'id' => $id,
+                'label' => $name,
+                'score' => (float) ($scores[$id] ?? 0),
+                'observed' => isset($observedInstrumentIds[$id]),
+            ];
+        }
+
         return view('laporan.index', [
             'activeMenu' => 'laporan',
             'gurus' => $gurus,
@@ -91,6 +101,7 @@ class LaporanController extends Controller
             'thresholdBaik' => 70,
             'savedAnalysis' => $saved,
             'chartScores' => $chartScores,
+            'saranItems' => $saranItems,
         ]);
     }
 
@@ -107,14 +118,11 @@ class LaporanController extends Controller
             'kesimpulan_akhir' => ['nullable', 'string'],
         ]);
 
-        // Build saran_instrumen array from individual fields
         $saranArray = [];
-        foreach ($data as $key => $value) {
-            if (str_starts_with($key, 'saran_instrumen_') && is_numeric(str_replace('saran_instrumen_', '', $key))) {
-                $id = str_replace('saran_instrumen_', '', $key);
-                if ($value) {
-                    $saranArray[$id] = $value;
-                }
+        foreach (Instrument::query()->pluck('id') as $id) {
+            $value = $request->input('saran_instrumen_' . $id);
+            if (is_string($value) && trim($value) !== '') {
+                $saranArray[$id] = $value;
             }
         }
 

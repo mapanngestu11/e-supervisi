@@ -89,9 +89,9 @@
                 <form action="{{ route('laporan.store') }}" method="POST" id="laporan-form" class="space-y-6">
                     @csrf
                     <input type="hidden" name="guru_id" value="{{ $selectedGuru->id }}">
-                    @foreach ($instrumentNames as $num => $name)
-                        <input type="hidden" name="scores[{{ $num }}]" value="{{ $scores[$num] ?? 0 }}"
-                            id="score-input-{{ $num }}">
+                    @foreach ($saranItems as $item)
+                        <input type="hidden" name="scores[{{ $item['id'] }}]" value="{{ $item['score'] }}"
+                            id="score-input-{{ $item['id'] }}">
                     @endforeach
 
                     <div class="rounded-xl border border-slate-200/80 bg-white p-5 shadow-sm">
@@ -105,12 +105,33 @@
                             </button>
                         </div>
 
-                        @foreach ($instrumentNames as $id => $name)
+                        @foreach ($saranItems as $item)
+                            @php
+                                $id = $item['id'];
+                                $baik = $item['score'] >= $thresholdBaik;
+                            @endphp
                             <div class="mb-4">
-                                <label for="saran_instrumen_{{ $id }}"
-                                    class="mb-1.5 block text-[11px] font-semibold uppercase tracking-wide text-slate-400">
-                                    Saran Instrumen — {{ $name }}
-                                </label>
+                                <div class="mb-1.5 flex items-center justify-between gap-3">
+                                    <label for="saran_instrumen_{{ $id }}"
+                                        class="block text-[11px] font-semibold uppercase tracking-wide text-slate-400">
+                                        INS-{{ $id }} — {{ $item['label'] }}
+                                    </label>
+                                    <div class="flex shrink-0 items-center gap-2">
+                                        @if ($item['observed'])
+                                            <span class="text-sm font-bold text-slate-800">Nilai:
+                                                {{ number_format($item['score'], 0) }}</span>
+                                            <span @class([
+                                                'rounded-md px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide',
+                                                'bg-blue-100 text-blue-700' => $baik,
+                                                'bg-red-100 text-red-700' => !$baik,
+                                            ])>{{ $baik ? 'Baik' : 'Kurang' }}</span>
+                                        @else
+                                            <span
+                                                class="rounded-md bg-slate-100 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-slate-500">Belum
+                                                diobservasi</span>
+                                        @endif
+                                    </div>
+                                </div>
                                 <textarea name="saran_instrumen_{{ $id }}" id="saran_instrumen_{{ $id }}" rows="3"
                                     class="w-full rounded-lg border border-slate-200 px-3 py-2.5 text-sm outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-100">{{ old('saran_instrumen_' . $id, $savedAnalysis ? $savedAnalysis->getSaranForInstrument($id) : '') }}</textarea>
                             </div>
@@ -158,8 +179,10 @@
             window.laporanPage = {
                 scores: @json($chartScores),
                 labels: @json(array_values($instrumentNames)),
+                ids: @json(array_keys($instrumentNames)),
                 threshold: {{ $thresholdBaik }},
                 guruName: @json($selectedGuru?->nama_lengkap ?? ''),
+                saranItems: @json($saranItems ?? []),
             };
         </script>
         @vite('resources/js/laporan.js')
