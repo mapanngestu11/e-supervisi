@@ -6,7 +6,6 @@ use App\Http\Controllers\InstitusiController;
 use App\Http\Controllers\InstrumenController;
 use App\Http\Controllers\LaporanController;
 use App\Http\Controllers\ObservasiController;
-use App\Http\Controllers\PinController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
@@ -46,6 +45,3 @@ Route::post('/reset-sesi', function () {
 
     return redirect()->route('dashboard')->with('status', 'Sesi telah direset.');
 })->name('session.reset');
-
-Route::get('/verify-pin', [PinController::class, 'show'])->name('pin.verify');
-Route::post('/verify-pin', [PinController::class, 'verify'])->name('pin.verify.post');
