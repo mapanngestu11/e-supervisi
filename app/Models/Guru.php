@@ -31,6 +31,14 @@ class Guru extends Model
         return str_contains(strtolower($this->status_sertifikasi), 'belum') ? 'BELUM' : 'SUDAH';
     }
 
+    /**
+     * @return array<int, string>
+     */
+    public function uniqueIds(): array
+    {
+        return ['uuid'];
+    }
+
     public function getRouteKeyName(): string
     {
         return 'uuid';
